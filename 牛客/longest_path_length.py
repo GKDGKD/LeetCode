@@ -12,81 +12,41 @@
 在这个示例中，find_increasing_path函数遍历矩阵的每个单元格，并以每个单元格为起点进行深度搜索。
 函数dfs用于实现递归的深度搜索，寻找递增路径。当找到一条合适的路径时，它会返回路径上的单元格坐标。
 
-牛客官方题解：
-class Solution:
-    global dirs
-    #记录四个方向
-    dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]] 
-    global n, m
-    #深度优先搜索，返回最大单元格数
-    def dfs(self, matrix:List[List[int]], dp: List[List[int]], i:int, j:int) :
-        if dp[i][j] != 0:
-            return dp[i][j]
-        dp[i][j] += 1
-        for k in range(4):
-            nexti = i + dirs[k][0]
-            nextj = j + dirs[k][1]
-            #判断条件
-            if  nexti >= 0 and nexti < n and nextj >= 0 and nextj < m and matrix[nexti][nextj] > matrix[i][j]:
-                dp[i][j] = max(dp[i][j], self.dfs(matrix, dp, nexti, nextj) + 1)
-        return dp[i][j]
-    
-    def solve(self , matrix: List[List[int]]) -> int:
-        global n,m
-        #矩阵不为空
-        if len(matrix) == 0 or len(matrix[0]) == 0:
-            return 0
-        res = 0
-        n = len(matrix)
-        m = len(matrix[0])
-        #i，j处的单元格拥有的最长递增路径
-        dp = [[0 for col in range(m)] for row in range(n)]  
-        for i in range(n):
-            for j in range(m):
-                #更新最大值
-                res = max(res, self.dfs(matrix, dp, i, j)) 
-        return res
-
-# 链接：https://www.nowcoder.com/practice/7a71a88cdf294ce6bdf54c899be967a2
 """
 
 from typing import List
 
 class Solution:
-    def is_valid(self, x, y, prev_value, visited, matrix):
-        # 判断路径是否有效
-        rows, cols = len(matrix), len(matrix[0])
-        return 0 < x < rows and 0 < y < cols and not visited[x][y] and matrix[x][y] > prev_value
-
     def solve(self , matrix: List[List[int]]) -> int:
+
         rows, cols = len(matrix), len(matrix[0])
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]  # 右、左、下、上
 
-        # def dfs(x, y)
+        # 用dp存储最长路径长度
+        dp = [[0]*cols for _ in range(rows)]
 
-    def find_increasing_path(self, matrix):
-        rows, cols = len(matrix), len(matrix[0])
-        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]  # 右、左、下、上
-
-        def dfs(x, y, prev_value, visited):
-            visited[x][y] = True
-            max_path_length = 0
+        def dfs(matrix, dp, i, j):
+            # 深度优先，单点遍历4个方向，寻找可行解
+            if dp[i][j] != 0:
+                return dp[i][j]
+            dp[i][j] += 1
+            
             for dx, dy in directions:
-                new_x, new_y = x + dx, y + dy
-                if self.is_valid(new_x, new_y, prev_value, visited, matrix):
-                    path_length = dfs(new_x, new_y, matrix[new_x][new_y], visited) + 1
-                    max_path_length = max(max_path_length, path_length)
-            visited[x][y] = False  # 回溯，重置已访问状态
-            return max_path_length
+                x_new, y_new = i + dx, j + dy
+                print(f'dfs: i:{i}, j:{j}, x_new:{x_new}, y_new:{y_new}, dp[i][j] = {dp[j][j]}')
+                # 可能是python版本原因，牛客需要0 <= x_new < rows and 0 <= y_new < cols才能通过测试
+                if 0 <= x_new < rows and 0 <= y_new < cols and matrix[x_new][y_new] > matrix[i][j]:
+                    dp[i][j] = max(dp[i][j], dfs(matrix, dp, x_new, y_new) + 1)
 
-        max_path_length = 0
-        for i in range(rows):
+            return dp[i][j]
+        
+        # 遍历矩阵的每个点
+        res = 0
+        for i  in range(rows):
             for j in range(cols):
-                visited = [[False] * cols for _ in range(rows)]
-                path_length = dfs(i, j, matrix[i][j], visited) + 1
-                max_path_length = max(max_path_length, path_length)
-
-        return max_path_length
+                res = max(res, dfs(matrix, dp, i, j))
+        
+        return res      
 
 if __name__ == "__main__":
     
@@ -98,5 +58,5 @@ if __name__ == "__main__":
     ]
 
     sol = Solution()
-    result = sol.find_increasing_path(matrix)
+    result = sol.solve(matrix)
     print(result)
